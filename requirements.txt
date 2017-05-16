@@ -1,0 +1,15 @@
+appdirs==1.4.3
+backports-abc==0.5
+certifi==2017.4.17
+futures==3.1.1
+Momoko==2.2.4
+packaging==16.8
+psycopg2==2.7.1
+pymongo==3.4.0
+pyparsing==2.2.0
+PyYAML==3.12
+requests==2.14.2
+singledispatch==3.4.0.3
+six==1.10.0
+tornado==4.5.1
+tornado-redis==2.4.18

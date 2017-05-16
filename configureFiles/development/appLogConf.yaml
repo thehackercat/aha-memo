@@ -1,0 +1,60 @@
+ # myLogYaml.yaml
+
+version: 1.0
+
+formatters:
+  commonFormatter:
+    format: '%(asctime)s [%(name)s %(filename)s:%(lineno)s %(levelname)s] %(message)s'
+
+loggers:
+  tornado.access:
+    handlers: [empty]
+    level : DEBUG
+    propagate: false
+  tornado.application:
+    handlers: [console]
+    level : DEBUG
+    propagate: false
+  tornado.general:
+    handlers: [console]
+    level : DEBUG
+    propagate: false
+
+  intlongLogger:
+    handlers: [console]
+    level : DEBUG
+    propagate: false
+  momoko:
+    handlers: [console]
+    level : INFO
+    propagate: false
+  pika.callback:
+    handlers: [console]
+    level : INFO
+    propagate: false
+  pika.connection:
+    handlers: [console]
+    level : INFO
+    propagate: false
+  pika.channel:
+    handlers: [console]
+    level : INFO
+    propagate: false
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: commonFormatter
+    stream: ext://sys.stdout
+
+  empty:
+    class: logging.NullHandler
+
+root:
+    handlers: [console]
+    level : DEBUG
+    propagate: false
+
+
+

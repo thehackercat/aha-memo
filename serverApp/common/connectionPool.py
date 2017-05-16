@@ -15,9 +15,9 @@ from tornado import process
 from tornado.ioloop import IOLoop
 
 from foundation import const
-from foundation.parseConfig import load_intlong_conf
+from foundation.parseConfig import load_conf
 
-load_intlong_conf('postgresql')
+load_conf('postgresql')
 
 executor = concurrent.futures.ThreadPoolExecutor(max_workers=int(process.cpu_count()))  # 创建一个线程池
 

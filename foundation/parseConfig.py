@@ -21,7 +21,7 @@ class EnvironmentError(Exception):
 
 def load_config():
     load_authority_config()
-    load_intlong_conf('all')
+    load_conf('all')
 
 
 def load_authority_config():
@@ -43,9 +43,9 @@ def load_authority_config():
     Loaded_Section_Or_File.append('authority')
 
 
-def load_intlong_conf(which_section):
+def load_conf(which_section):
     """
-    根据which_section解析intlong.conf
+    根据which_section解析aha.conf
     :param which_section: 需要解析的哪个section, 如果值是all，则解析所有的section
     :return 如果解析成功，返回True，否则返回False
     """
@@ -54,29 +54,29 @@ def load_intlong_conf(which_section):
 
     BASE_DIR = os.path.dirname(__file__)
     if const.env == "development":
-        config_path_intlong = os.path.abspath(os.path.join(BASE_DIR, os.pardir, 'configureFiles/development/intlong.conf'))
+        config_path_aha = os.path.abspath(os.path.join(BASE_DIR, os.pardir, 'configureFiles/development/aha.conf'))
     elif const.env == "production":
-        config_path_intlong = os.path.abspath(os.path.join(BASE_DIR, os.pardir, 'configureFiles/production/intlong.conf'))
+        config_path_aha = os.path.abspath(os.path.join(BASE_DIR, os.pardir, 'configureFiles/production/aha.conf'))
     elif const.env == "test":
-        config_path_intlong = os.path.abspath(os.path.join(BASE_DIR, os.pardir, 'configureFiles/test/intlong.conf'))
+        config_path_aha = os.path.abspath(os.path.join(BASE_DIR, os.pardir, 'configureFiles/test/aha.conf'))
     else:
         print "环境错误，既不是development，也不是production和test"
         raise EnvironmentError("环境错误，既不是development，也不是production和test")
     # 解析intlong.conf
     cfintlong = ConfigParser.ConfigParser()
-    cfintlong.read(config_path_intlong)
-    allsections_intlong = cfintlong.sections()
+    cfintlong.read(config_path_aha)
+    allsections_aha = cfintlong.sections()
     print os.pardir
-    for section_intlong in allsections_intlong:
-        if which_section != 'all' and section_intlong != which_section:
+    for section_aha in allsections_aha:
+        if which_section != 'all' and section_aha != which_section:
             continue
-        section_result_intlong = {}
-        alloptions_intlong = cfintlong.options(section_intlong)
-        for op_intlong in alloptions_intlong:
-            section_result_intlong[op_intlong] = cfintlong.get(section_intlong, op_intlong)
+        section_result_aha = {}
+        alloptions_aha = cfintlong.options(section_aha)
+        for op_aha in alloptions_aha:
+            section_result_aha[op_aha] = cfintlong.get(section_aha, op_aha)
 
-        const.__dict__[section_intlong] = section_result_intlong
-        Loaded_Section_Or_File.append(section_intlong)
+        const.__dict__[section_aha] = section_result_aha
+        Loaded_Section_Or_File.append(section_aha)
 
 
 class _AuthorityConfig:

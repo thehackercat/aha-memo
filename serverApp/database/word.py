@@ -16,10 +16,11 @@ class Word_DB(object):
     单词书模块接口
     """
     @gen.coroutine
-    def word_add(self, word_id, user_id, attr_dict):
+    def word_add(self, word_id, user_id, word_ori, word_explain, word_phonetic, word_us_phonetic, word_uk_phonetic,
+                 speak_url, easy_forget, is_memoried, word_tip, word_weight):
         """
        添加单词基本信息
-       :param word_id:               int 商品id
+       :param word_id:               int 词条id
        :param user_id:               str 用户id
        :param word_ori:              str 单词原意
        :param word_explain:          str 单词译意
@@ -36,17 +37,17 @@ class Word_DB(object):
         word = Word(
             word_id=word_id,
             user_id=user_id,
-            word_ori=attr_dict['word_ori'] if 'word_ori' in attr_dict else None,
-            word_explain=attr_dict['word_explain'] if 'word_explain' in attr_dict else None,
-            word_phonetic=attr_dict['word_phonetic'] if 'word_phonetic' in attr_dict else None,
-            word_us_phonetic=attr_dict['word_us_phonetic'] if 'word_us_phonetic' in attr_dict else None,
-            word_uk_phonetic=attr_dict['word_uk_phonetic'] if 'word_uk_phonetic' in attr_dict else None,
-            spaek_url=attr_dict['speak_url'] if 'speak_url' in attr_dict else None,
-            easy_forget=attr_dict['easy_forget'] if 'easy_forget' in attr_dict else None,
-            is_memoried=attr_dict['is_memoried'] if 'is_memoried' in attr_dict else None,
-            memory_time='NOW()' if 'is_memoried' in attr_dict and attr_dict['is_memoried'] is True else None,
-            word_tip=attr_dict['word_tip'] if 'word_tip' in attr_dict else None,
-            word_weight=attr_dict['word_weight'] if 'word_weight' in attr_dict else None,
+            word_ori=word_ori,
+            word_explain=word_explain,
+            word_phonetic=word_phonetic,
+            word_us_phonetic=word_us_phonetic,
+            word_uk_phonetic=word_uk_phonetic,
+            speak_url=speak_url,
+            easy_forget=easy_forget,
+            is_memoried=is_memoried,
+            memory_time='NOW()' if is_memoried is True else None,
+            word_tip=word_tip,
+            word_weight=word_weight,
             create_time='NOW()',
             last_modify='NOW()',
             is_deleted='False',
@@ -63,7 +64,7 @@ class Word_DB(object):
         raise gen.Return(True)
 
     @gen.coroutine
-    def pdt_add_rollback(self, word_id):
+    def word_add_rollback(self, word_id):
         """
         回滚添加单词时出现错误的情况
         :param word_id:        int  单词编号
@@ -78,7 +79,7 @@ class Word_DB(object):
         raise gen.Return(True)
 
     @gen.coroutine
-    def pdt_modify(self, word_id, user_id, attr_dict):
+    def word_modify(self, word_id, user_id, attr_dict):
         """
         根据单词id修改单词词条基本属性
         :param word_id:         int 单词id
@@ -86,7 +87,7 @@ class Word_DB(object):
         :param attr_dict:       dict 属性字典
         :return:                bool 修改结果
         attr_dict:dict 属性字典{
-            :param word_id:               int 商品id
+            :param word_id:               int 词条id
             :param user_id:               str 用户id
             :param word_ori:              str 单词原意
             :param word_explain:          str 单词译意
@@ -123,13 +124,13 @@ class Word_DB(object):
         raise gen.Return(True)
 
     @gen.coroutine
-    def pdt_scan_batch(self, *id_list):
+    def word_scan_batch(self, *id_list):
         """
-        根据商品id列表批量查询商品信息
-        :param id_list:         list 商品id列表
+        根据词条id列表批量查询瓷套信息
+        :param id_list:         list 词条id列表
         :return:                dict 返回字典
         dict 返回字典{
-            str 商品id : dict 商品信息
+            str 词条id : dict 词条信息
         }
         """
         db_param = {
@@ -161,7 +162,7 @@ class Word_DB(object):
             raise DatabaseError.NotExistError('word', '''word(id = '%s') not exists''' % id_list)
 
         for word in words:
-            # 检查商品是否被删除
+            # 检查词条是否被删除
             if word is None or len(word) == 0 or word['is_deleted']:
                 raise DatabaseError.CommonError('''word(id = '%s') is deleted''' % word['word_id'])
             # 时间处理
@@ -171,7 +172,7 @@ class Word_DB(object):
         raise gen.Return(return_dict)
 
     @gen.coroutine
-    def pdt_del(self, word_id, user_id):
+    def word_del(self, word_id, user_id):
         """
         用户删除单词本中的单词
         :param word_id:         int 单词id
@@ -179,7 +180,7 @@ class Word_DB(object):
         :return:                bool 删除结果
         """
         word = yield Word.where(word_id=word_id).select(1, 'is_deleted')
-        # 判断商品是否已删除
+        # 判断词条是否已删除
         if word['is_deleted']:
             raise DatabaseError.CommonError('''word(id = '%s') can not delete again''' % word_id)
 

@@ -73,9 +73,9 @@ class Word_DB(object):
         r1 = yield Word.where(word_id=word_id).delete()
         if not r1:
             raise gen.Return(True)
-        r2 = yield Word.where(word_id=word_id).returnings('word_id').delete()
-        if not r2:
-            raise gen.Return(True)
+        # r2 = yield Word.where(word_id=word_id).returnings('word_id').delete()
+        # if not r2:
+        #     raise gen.Return(True)
         raise gen.Return(True)
 
     @gen.coroutine
@@ -153,8 +153,8 @@ class Word_DB(object):
         if not id_list:
             raise gen.Return(None)
         for l in id_list:
-            if not isinstance(l, int):
-                raise TypeError('id must be int')
+            if not isinstance(l, str):
+                raise TypeError('id must be str')
         words = yield Word.where(word_id=id_list, is_deleted=False).select(-1)
 
         # 检查数据库查询结果

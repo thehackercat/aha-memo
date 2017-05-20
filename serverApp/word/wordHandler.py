@@ -32,7 +32,7 @@ class WordHander(RequestHandlerAha):
                 raise tornado.gen.Return(self.write(resp.resultStr()))
 
             # 获取商品数据
-            word = yield word_db.word_scan_batch(word_id)
+            word = yield word_db.word_scan_batch(str(word_id))
             if word is None:
                 rsp = ResponseJSON(code=404, description="查询不到商品")
             elif word == 403:
@@ -40,6 +40,8 @@ class WordHander(RequestHandlerAha):
             else:
                 rsp = ResponseJSON(code=200, data=word)
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             rsp = ResponseJSON(code=500, description="查询出错")
             logger.error('WordHandler catch an exception, word_id: '
                          + str(word_id) + '\n' + '\tException: ' + e.message)

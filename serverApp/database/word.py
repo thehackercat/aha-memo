@@ -168,7 +168,9 @@ class Word_DB(object):
             # 时间处理
             if 'create_time' in word and word['create_time'] is not None:
                 word['create_time'] = word['create_time'].strftime("%Y-%m-%d %H:%M:%S")
-            return_dict[word['pdt_id']] = _db._param_db_mapping(db_param, word)
+            if 'memory_time' in word and word['memory_time'] is not None:
+                word['memory_time'] = word['memory_time'].strftime("%Y-%m-%d %H:%M:%S")
+            return_dict[word['word_id']] = _db._param_db_mapping(db_param, word)
         raise gen.Return(return_dict)
 
     @gen.coroutine

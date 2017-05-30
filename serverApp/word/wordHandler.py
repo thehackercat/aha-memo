@@ -3,12 +3,15 @@
 __author__ = 'LexusLee'
 
 import time
+import math
 from random import Random
 from tornado.gen import coroutine
 from tornado.escape import json_decode
 import tornado.gen
+from tornado.web import MissingArgumentError
 from foundation.log import logger
 from serverApp.common.aha import RequestHandlerAha, ResponseJSON
+from serverApp.common.serverAppConfig import PAGE_LENGTH
 from serverApp.database.word import Word_DB
 
 word_db = Word_DB()
@@ -289,3 +292,62 @@ class WordHander(RequestHandlerAha):
         word_id_prefix = int(time.time())
         word_id = word_id_suffix + str(word_id_prefix)
         return word_id
+
+
+class ShowAllWord(RequestHandlerAha):
+    """
+    该模块负责展示用户的所有词条
+    """
+    @coroutine
+    def get(self, user_id):
+        """
+        用户查看自己的词条列表
+        """
+        resp = ResponseJSON(500)
+        try:
+            # if user_id != str(self.current_user):
+            #     logger.warning("{cu}不能查看其他用户的词条列表{other}".format(cu=self.current_user, other=user_id))
+            #     resp = ResponseJSON(403, description="游客访问，无法查看")
+            #     return
+
+            page_size = self.get_query_argument('page_size', default=PAGE_LENGTH)
+            page_no = self.get_query_argument('page_no', default='1')
+            c = self.get_query_argument('c', default='0')
+
+            if int(page_size) > 15:
+                logger.warning("前端参数错误，超过了页面大小")
+                resp = ResponseJSON(400, description="前端参数错误，超过了页面大小")
+                return
+
+            countTotalPage = False if c == '0' else True
+
+            result = yield word_db.user_word_list_scan(user_id=str(user_id), page_num=int(page_no),
+                                                       page_size=int(page_size), show_count=countTotalPage)
+            if not result:
+                resp = ResponseJSON(200)
+                return
+            respData = {}
+            if countTotalPage:  # 是否显示总页数
+                # respData['total_num'] = result.pop('len')
+                respData['total_num'] = result['len']
+                respData['count'] = math.ceil(respData['total_num'] / float(page_size))
+            respData_word_list = []
+            for value in result['list']:
+                oneWord = {}
+                oneWord['word_id'] = value['word_id']
+                oneWord['word_ori'] = value['word_ori']
+                oneWord['word_explain'] = value['word_explain']
+                oneWord['word_phonetic'] = value['word_phonetic']
+                oneWord['word_tip'] = value['word_tip']
+                oneWord['create_time'] = value['create_time'].strftime('%Y-%m-%d %H:%M:%S')
+                respData_word_list.append(oneWord)
+            respData['list'] = respData_word_list
+            resp = ResponseJSON(200, respData)
+        except MissingArgumentError:
+            resp = ResponseJSON(400, description="前端参数错误")
+        except KeyError as e:
+            logger.warning("数据库返回的数据没有key：{key}".format(key=e))
+        except Exception as e:
+            logger.warning(e.message)
+        finally:
+            raise tornado.gen.Return(self.write(resp.resultStr()))

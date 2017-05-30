@@ -192,3 +192,55 @@ class Word_DB(object):
         if not rc:
             raise DatabaseError.NotExistError('word', '''word(id = '%s') not exists''' % word_id)
         raise gen.Return(True)
+
+    @gen.coroutine
+    def user_word_list_scan(self, user_id, page_num=None, page_size=None, show_count=False):
+        """
+        根据用户id查看词条id列表
+        :param user_id:         str 用户id
+        :param page_num:        int 页数
+        :param page_size:       int 页大小
+        :param show_count:      bool 总数
+        :return:                dict 返回字典
+        dict 返回字典{
+            str 词条id : dict    词条信息
+            len:int 词条总数（show_count为false时无此字段）
+        }
+        dict 词条信息{
+            word_id:str 词条id
+            word_ori:str 词条原意
+            word_explain:str 词条译意
+            word_phonetic:str 词条发音
+            word_tip:str 词条备注
+            create_time:str 录入时间
+        }
+        """
+        db_param = {
+            'word_id': 'word_id',
+            'word_ori': 'word_ori',
+            'word_explain': 'word_explain',
+            'word_phonetic': 'word_phonetic',
+            'word_tip': 'word_tip',
+            'create_time': 'create_time'
+        }
+        rows = -1 if not page_num or not page_size else page_size
+        offset = None if not page_num or not page_size else (page_num - 1) * page_size
+
+        try:
+            result = yield Word.where(user_id=user_id, is_deleted=False).order('create_time', is_asc=False)\
+                .limit(rows, offset).select(-1, *db_param.keys())
+        except Exception as e:
+            print e.message
+
+        if not result:
+            raise gen.Return(None)
+        return_dict = dict()
+        return_dict['list'] = list()
+        if show_count:
+            rc = yield Word.where(user_id=user_id, is_deleted=False).count()
+            return_dict['len'] = int(rc[0]['count'])
+        for rs in result:
+            rs = _db._param_db_mapping(db_param, rs)
+            # return_dict[rs.pop('word_id')] = rs
+            return_dict['list'].append(rs)
+        raise gen.Return(return_dict)

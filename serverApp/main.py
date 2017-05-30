@@ -50,6 +50,7 @@ from serverApp.common.connectionPool import dbpool
 
 # 该部分引用services
 from serverApp.word.wordHandler import WordHander
+from serverApp.word.wordHandler import ShowAllWord
 from serverApp.translate.translateHandler import TranslateHandler
 
 # 该部分引用测试部分test handler
@@ -57,6 +58,7 @@ if const.env == "development":
     test_handlers = [
         url(r"/v1/word", WordHander),
         url(r"/v1/user/(\d+)/word/(\w+)", WordHander),
+        url(r"/v1/user/(\d+)/word", ShowAllWord),
         url(r"/v1/translate", TranslateHandler),
     ]
     logger.info("加载测试的handlers")
